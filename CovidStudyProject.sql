@@ -113,8 +113,10 @@ SELECT*, (RollingVaccineCount/Population)*100
 FROM #PercentPopulationVaccinated
 
 
--- CREATING VIEWS to store data for visualization
+-- CREATING VIEWS to store data for visualization ============================================================================
 
+
+--View Counting Vaccinations through time partitioned by location---------------------------------
 --DROP VIEW IF EXISTS PercentPopulationVaccinated
 
 CREATE VIEW PercentPopulationVaccinated AS
@@ -127,3 +129,34 @@ WHERE dea.continent IS NOT NULL
 
 SELECT *
 FROM PercentPopulationVaccinated
+
+-- View of Percent of People infected in each location (Country)----------------------------------
+--DROP VIEW IF EXISTS PercentPopulationInfected
+
+CREATE VIEW PercentPopulationInfected  AS
+SELECT location, population, MAX (total_cases) AS HighestRecordedInfectionNumber, MAX((total_cases/population)*100) AS PercentOfPopulationInfected
+FROM PortfolioProject..CovidDeaths
+WHERE continent IS NOT null
+GROUP BY location, population
+--ORDER BY PercentOfPopulationInfected desc (Can't use order by in view)
+
+--View Percent of infected people deceased in each location-------------------------------------
+--DROP VIEW IF EXISTS PercentOfPeopleDeceased
+
+CREATE VIEW PercentageOfPopulationDeceased AS
+SELECT location, population, MAX(total_cases) AS HighestCaseCount, MAX(total_deaths) AS HighestDeathCount
+, MAX((total_deaths/population)*100) AS HighestPercentOfPopulationDeceased
+FROM PortfolioProject..CovidDeaths
+WHERE continent IS NOT NULL
+GROUP BY location, population
+--ORDER BY HighestPercentOfPopulationDeceased DESC
+
+
+--View Total Deaths broken down by region and then income--------------------------------------------
+
+CREATE VIEW TotalRegionalDeaths AS
+SELECT DISTINCT location, MAX(total_deaths) AS TotalDeaths
+FROM PortfolioProject..CovidDeaths
+WHERE continent IS NULL
+GROUP BY location
+--ORDER BY TotalDeaths desc
