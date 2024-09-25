@@ -160,3 +160,32 @@ FROM PortfolioProject..CovidDeaths
 WHERE continent IS NULL
 GROUP BY location
 --ORDER BY TotalDeaths desc
+
+--++++++++ Visualization Queries ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+--QUERIES FOR Visualization
+
+-- 1 -- Worlwide covid death rate
+SELECT SUM(total_cases) AS TotalCovidCases, SUM(new_deaths) AS TotalCovidDeaths, (SUM(new_deaths)/SUM(new_cases))*100 AS CovidDeathPercentage
+FROM PortfolioProject..CovidDeaths
+WHERE continent IS NOT NULL AND new_cases != 0
+ORDER BY 1,2
+
+
+-- 2 --Total Covid deaths per continent (Oceania Included)
+SELECT location, SUM(new_deaths) AS TotalCovidDeaths
+FROM PortfolioProject..CovidDeaths
+WHERE continent IS NULL AND location IN ('ASIA', 'Europe', 'North America', 'South America', 'Africa', 'Oceania')
+GROUP BY location
+ORDER BY TotalCovidDeaths DESC
+
+-- 3 -- Infection Rate over Population per country
+SELECT location, population, MAX(total_cases) AS HighestInfectionCount, MAX(total_cases/population)*100 AS PercentPopulationInfected 
+FROM PortfolioProject..CovidDeaths
+GROUP BY location, population
+ORDER BY PercentPopulationInfected DESC
+
+-- 4 -- Covid infection rate per date interval in countries
+SELECT Location, Population, Date, MAX(total_cases) AS HighestInfectionCount, MAX((total_cases/population))*100 AS PercentPopulationInfected
+FROM PortfolioProject..CovidDeaths
+GROUP BY Location, Population, Date
+ORDER BY PercentPopulationInfected DESC
